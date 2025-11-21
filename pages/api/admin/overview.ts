@@ -62,5 +62,5 @@ async function handler(req: AuthRequest, res: NextApiResponse) {
   }
 }
 
-// Solo SUPERADMIN puede acceder
-export default requireAuth(withErrorHandler(handler), ["SUPERADMIN"]);
+// Solo ADMIN y SUPERADMIN pueden acceder
+export default requireAuth(withErrorHandler(handler), ["ADMIN", "SUPERADMIN"]);
