@@ -10,8 +10,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === "GET") {
     const { hotelId, page = "1", limit = "10" } = req.query;
 
-    const pageValue = Array.isArray(page) ? page[0] : page;
-    const limitValue = Array.isArray(limit) ? limit[0] : limit;
+    const pageValue = Array.isArray(page) ? Number(page[0]) : Number(page);
+    const limitValue = Array.isArray(limit) ? Number(limit[0]) : Number(limit);
     const hotelValue = Array.isArray(hotelId) ? hotelId[0] : hotelId;
 
     const where = hotelValue ? { hotelId: Number(hotelValue) } : {};
@@ -25,7 +25,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       orderBy: { createdAt: "desc" },
     });
 
-    return res.status(200).json(result);
+    // === FORMATEO PARA QUE EL FRONT FUNCIONE ===
+    const roomsFormatted = result.data.map((room: any) => ({
+      id: room.id,
+      name: room.number, // ← estandarizado
+      type: room.type,
+      price: Number(room.price),
+      capacity: Number(room.capacity),
+      available: room.status === "AVAILABLE", // ← estandarizado
+      hotel: room.hotel,
+    }));
+
+    return res.status(200).json({
+      ...result,
+      data: roomsFormatted,
+    });
   }
 
   // === CREAR HABITACIÓN ===
