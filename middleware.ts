@@ -4,9 +4,11 @@ import type { NextRequest } from "next/server";
 
 // CORS - dominios permitidos
 const allowedOrigins = [
-  "http://localhost:5173",  // Frontend Vite (desarrollo local)
-  "http://localhost:3000",  // Next.js local
-  "https://tu-frontend.com" // Dominio de producción
+  "http://localhost:5173",       // Frontend Vite (desarrollo local)
+  "http://localhost:3000",       // Next.js local
+  "http://127.0.0.1:5500",       // Flutter Web local dev server
+  "http://localhost:5500",       // Flutter Web local dev server fallback
+  "https://tu-frontend.com"      // Dominio de producción
 ];
 
 // Rate limit por IP (memoria local)
@@ -42,11 +44,14 @@ export function middleware(req: NextRequest) {
 
   // Configurar headers CORS
   const headers = new Headers();
-  if (allowedOrigins.includes(origin)) {
+
+  // Permitir cualquier origen para desarrollo local
+  if (allowedOrigins.includes(origin) || origin.startsWith("http://127.0.0.1") || origin.startsWith("http://localhost")) {
     headers.set("Access-Control-Allow-Origin", origin);
   } else {
-    headers.set("Access-Control-Allow-Origin", "*"); // fallback
+    headers.set("Access-Control-Allow-Origin", "*"); // fallback para producción
   }
+
   headers.set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
