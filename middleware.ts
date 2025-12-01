@@ -45,8 +45,13 @@ export function middleware(req: NextRequest) {
   // Configurar headers CORS
   const headers = new Headers();
 
-  // Permitir cualquier origen para desarrollo local
-  if (allowedOrigins.includes(origin) || origin.startsWith("http://127.0.0.1") || origin.startsWith("http://localhost")) {
+  // Permitir cualquier origen de localhost o de la red local
+  if (
+    allowedOrigins.includes(origin) ||
+    origin.startsWith("http://127.0.0.1") ||
+    origin.startsWith("http://localhost") ||
+    origin.startsWith("http://192.168.") // cualquier IP local
+  ) {
     headers.set("Access-Control-Allow-Origin", origin);
   } else {
     headers.set("Access-Control-Allow-Origin", "*"); // fallback para producción
