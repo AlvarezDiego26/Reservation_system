@@ -9,10 +9,6 @@ export function withErrorHandler(handler: Handler) {
     } catch (error: any) {
       console.error("API Error:", error);
 
-      if (error.status && error.message) {
-        return res.status(error.status).json({ error: error.message });
-      }
-
       return res.status(500).json({
         error: "Internal Server Error",
         message: error.message || "Unexpected error",
@@ -22,7 +18,5 @@ export function withErrorHandler(handler: Handler) {
 }
 
 export function throwError(status: number, message: string): never {
-  const err: any = new Error(message);
-  err.status = status;
-  throw err;
+  throw new Error(message);
 }

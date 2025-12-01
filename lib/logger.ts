@@ -1,14 +1,5 @@
-import prisma from "./prisma";
+// logger.ts — TEST MODE (no guarda nada)
 
-export async function logAction(userId: number | null, action: string) {
-  try {
-    await prisma.log.create({
-      data: {
-        userId,
-        action,
-      },
-    });
-  } catch (err) {
-    console.error("Error saving log:", err);
-  }
+export async function logAction() {
+  return; // noop
 }

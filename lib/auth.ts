@@ -1,14 +1,9 @@
-import jwt from 'jsonwebtoken';
+// auth.ts — TEST MODE (no token, no verificación)
 
 export function signToken(payload: object) {
-  return jwt.sign(payload, process.env.JWT_SECRET as string, {
-    expiresIn: '7d',
-    algorithm: 'HS512', // más fuerte que el HS256 por defecto
-  });
+  return "TEST_TOKEN";
 }
 
 export function verifyToken(token: string) {
-  return jwt.verify(token, process.env.JWT_SECRET as string, {
-    algorithms: ['HS512'],
-  });
+  return { id: 1, role: "ADMIN" }; // siempre válido
 }
