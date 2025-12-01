@@ -3,6 +3,17 @@ import prisma from "../../../lib/prisma";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // 🔹 Permitir CORS
+  res.setHeader("Access-Control-Allow-Origin", "*"); // o tu dominio: "https://tu-app.vercel.app"
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // 🔹 Responder a OPTIONS
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  // 🔹 Solo POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -13,20 +24,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-    // Traemos solo habitaciones disponibles
     const rooms = await prisma.room.findMany({
       where: { status: "AVAILABLE" },
-      select: {
-        number: true,
-        type: true,
-        price: true,
-        hotel: { select: { name: true, city: true } },
-      },
+      select: { number: true, type: true, price: true, hotel: { select: { name: true, city: true } } },
     });
 
     const context = JSON.stringify(rooms);
 
-    // Modelo gratuito / estable
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
@@ -47,13 +51,11 @@ ${context}
     return res.status(200).json({ answer: output });
   } catch (error: any) {
     console.error("ERROR IA:", error);
-
     if (error.status === 429) {
       return res.status(429).json({
         error: "Se excedió la cuota gratuita de Gemini. Espera unos segundos e inténtalo de nuevo.",
       });
     }
-
     return res.status(500).json({ error: "IA error" });
   }
 }
